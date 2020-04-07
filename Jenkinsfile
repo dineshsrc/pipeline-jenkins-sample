@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker{
-         image 'digitizedpost/dockerjenkinsdemorepo:5'
+         image 'digitizedpost/dockerjenkinsdemorepo'
          args '-v $HOME:C:/Program Files/Docker Toolbox'
         }
     }
