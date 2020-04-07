@@ -1,6 +1,7 @@
 pipeline {
     agent {
         docker{
+         image 'maven:3.3.3'
          args '-v $HOME:C:/Program Files/Docker Toolbox'
         }
     }
