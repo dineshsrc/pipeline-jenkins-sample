@@ -4,7 +4,8 @@ pipeline {
     }
     stages {
        stage('Initialize'){
-         def dockerHome = tool 'LocalDOCKER'
+         def dockerHome = 'LocalDOCKER'
+         sh "echo ${dockerHome}"
          env.PATH = "${dockerHome}:${env.PATH}"
        }
         stage("testing 123") {
