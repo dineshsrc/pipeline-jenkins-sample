@@ -1,17 +1,19 @@
-pipeline {
-    agent {
-        docker 'node'
+def CONTAINER_NAME="jenkins-pipeline"
+def CONTAINER_TAG="latest"
+def DOCKER_HUB_USER="hakdogan"
+def HTTP_PORT="8090"
+
+node {
+
+    stage('Initialize'){
+        def dockerHome = tool 'LocalDOCKER'
+        env.PATH = "${dockerHome}:${env.PATH}"
     }
-    stages {
-       stage('Initialize'){
-         def dockerHome = 'LocalDOCKER'
-         sh "echo ${dockerHome}"
-         env.PATH = "${dockerHome}:${env.PATH}"
-       }
-        stage("testing 123") {
-            steps {
-                sh 'node --version'
-            }
-        }
+
+    stage('Checkout') {
+        checkout scm
     }
+
+
+
 }
