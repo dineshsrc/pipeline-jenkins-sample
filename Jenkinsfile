@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker{
-         image 'maven:3.3.3'
-         args '-v $HOME:C:/Program Files/Docker Toolbox'
+         image 'digitizedpost/dockerjenkinsdemorepo:5'
+         args '-v tcp://192.168.99.100:2376'
         }
     }
     stages {
