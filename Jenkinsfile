@@ -1,19 +1,16 @@
-def CONTAINER_NAME="jenkins-pipeline"
-def CONTAINER_TAG="latest"
-def DOCKER_HUB_USER="hakdogan"
-def HTTP_PORT="8090"
-
-node {
-
-    stage('Initialize'){
-        def dockerHome = tool 'LocalDOCKER'
-        env.PATH = "${dockerHome}:${env.PATH}"
+pipeline {
+    agent {
+        docker 'node'
+         args '-v $HOME:C:/Program Files/Docker Toolbox'
     }
-
-    stage('Checkout') {
-        checkout scm
+    stages {
+        stage("testing 123") {
+            steps {
+                dir(path: 'C:/Program Files/Docker Toolbox') {
+                sh 'ls -l'
+                sh 'node --version'
+                }
+            }
+        }
     }
-
-
-
 }
