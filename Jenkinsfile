@@ -9,7 +9,7 @@ node {
         def dockerHome = tool 'LocalDOCKER'
         def mavenHome  = tool 'LocalMAVEN'
         def gitUserHome = 'C:/Program Files/Git/usr/bin'
-        env.PATH = "${dockerHome}:${mavenHome}/bin:${gitUserHome}:${env.PATH}"
+        env.PATH = "C:\\Program Files\\Git\\usr\\bin;C:\\Program Files\\Git\\bin:${dockerHome}:${mavenHome}/bin:${env.PATH}"
     }
 
     stage('Checkout') {
