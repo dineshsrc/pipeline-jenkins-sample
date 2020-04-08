@@ -1,18 +1,15 @@
 pipeline {
     agent {
         docker{
-         image 'digitizedpost/dockerjenkinsdemorepo:5'
+         image 'maven:3.3.3'
          args '-v $HOME:/root'
         }
     }
     stages {
-        stage("testing 123") {
-            environment {
-                HOME = '.'
-            }
+        stage("Build") {
             steps {
                 dir(path: '/root') {
-                sh 'ls -l'
+                sh 'mvn -B'
                 }
             }
         }
