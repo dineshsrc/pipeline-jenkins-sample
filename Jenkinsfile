@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker{
          image 'digitizedpost/dockerjenkinsdemorepo:5'
-         args '-v tcp://192.168.99.100:2376'
+         args '-v $HOME:/root'
         }
     }
     stages {
@@ -11,7 +11,7 @@ pipeline {
                 HOME = '.'
             }
             steps {
-                dir(path: 'C:/Program Files/Docker Toolbox') {
+                dir(path: '/root') {
                 sh 'ls -l'
                 }
             }
