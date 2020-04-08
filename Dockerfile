@@ -1,5 +1,5 @@
 # use a node base image
-FROM digitizedpost/dockerjenkinsdemorepo:5
+FROM 403edfee2197
 
 # tell docker what port to expose
 EXPOSE 8080
