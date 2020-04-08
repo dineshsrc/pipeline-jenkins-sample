@@ -1,36 +1,73 @@
+def CONTAINER_NAME="jenkins-pipeline"
+def CONTAINER_TAG="latest"
+def DOCKER_HUB_USER="digitizedpost"
+def HTTP_PORT="8090"
+
 node {
-    def app
 
-    stage('Clone repository') {
-        /* Let's make sure we have the repository cloned to our workspace */
+    stage('Initialize'){
+        def dockerHome = tool 'LocalDOCKER'
+        def mavenHome  = tool 'LocalMAVEN'
+        env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
+    }
 
+    stage('Checkout') {
         checkout scm
     }
 
-    stage('Build image') {
-        /* This builds the actual image; synonymous to
-         * docker build on the command line */
-
-        app = docker.build("digitizedpost/dockerjenkinsdemorepo")
+    stage('Build'){
+        sh "mvn clean install"
     }
 
-    stage('Test image') {
-        /* Ideally, we would run a test framework against our image.
-         * For this example, we're using a Volkswagen-type approach ;-) */
+    stage('Sonar'){
+        try {
+            sh "mvn sonar:sonar"
+        } catch(error){
+            echo "The sonar server could not be reached ${error}"
+        }
+     }
 
-        app.inside {
-            sh 'echo "Tests passed"'
+    stage("Image Prune"){
+        imagePrune(CONTAINER_NAME)
+    }
+
+    stage('Image Build'){
+        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
+    }
+
+    stage('Push to Docker Registry'){
+        withCredentials([usernamePassword(credentialsId: '390e87c3-bf43-46b4-a0c0-c0131c491f8f', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
         }
     }
 
-    stage('Push image') {
-        /* Finally, we'll push the image with two tags:
-         * First, the incremental build number from Jenkins
-         * Second, the 'latest' tag.
-         * Pushing multiple tags is cheap, as all the layers are reused. */
-        docker.withRegistry('https://registry.hub.docker.com', '390e87c3-bf43-46b4-a0c0-c0131c491f8f') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
-        }
+    stage('Run App'){
+        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
     }
+
+}
+
+def imagePrune(containerName){
+    try {
+        sh "docker image prune -f"
+        sh "docker stop $containerName"
+    } catch(error){}
+}
+
+def imageBuild(containerName, tag){
+    sh "docker build -t $containerName:$tag  -t $containerName --pull --no-cache ."
+    echo "Image build complete"
+}
+
+def pushToImage(containerName, tag, dockerUser, dockerPassword){
+    sh "docker login -u $dockerUser -p $dockerPassword"
+    sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
+    sh "docker push $dockerUser/$containerName:$tag"
+    echo "Image push complete"
+}
+
+def runApp(containerName, tag, dockerHubUser, httpPort){
+    sh "docker pull $dockerHubUser/$containerName"
+    sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $dockerHubUser/$containerName:$tag"
+    echo "Application started on port: ${httpPort} (http)"
 }
