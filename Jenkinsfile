@@ -7,6 +7,9 @@ pipeline {
     }
     stages {
         stage("testing 123") {
+            environment {
+                HOME = '.'
+            }
             steps {
                 dir(path: 'C:/Program Files/Docker Toolbox') {
                 sh 'ls -l'
